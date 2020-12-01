@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:test_firebase/pages/home.page.dart';
+import 'package:test_firebase/pages/showuser.page.dart';
+import 'package:test_firebase/pages/showusers.page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,10 +17,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Firebase',
-      home: TestScreen(),
+      home: HomePage(),
       // home: Container(
       //   child: Text('Test'),
       // ),
+      routes: {
+        HomePage.routeName: (context) => HomePage(),
+        ShowUsersPage.routeName: (context) => ShowUsersPage(),
+        ShowUserPage.routeName: (context) => ShowUserPage(),
+      },
     );
   }
 }
@@ -37,6 +45,30 @@ class _TestScreenState extends State<TestScreen> {
     // TODO: implement initState
     super.initState();
     //this.initialFirebase();
+    this.getAllData();
+    //this.getUser(1);
+  }
+
+  void getAllData() {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    CollectionReference users = firestore.collection('users');
+
+    users.get().then((QuerySnapshot qSnap) {
+      qSnap.docs.forEach((QueryDocumentSnapshot qDocSnap) {
+        print(qDocSnap.data());
+      });
+    });
+  }
+
+  void getUser(int userId) {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    CollectionReference user = firestore.collection('users');
+
+    user.doc(userId.toString()).get().then((DocumentSnapshot docSnap) {
+      if (docSnap.exists) {
+        print(docSnap.data());
+      }
+    });
   }
 
   void initialFirebase() async {
@@ -112,17 +144,15 @@ class _TestScreenState extends State<TestScreen> {
                 List<Map<String, dynamic>> _jsonLst =
                     List<Map<String, dynamic>>();
 
-                users
-                    .get()
-                    .then((QuerySnapshot qSnap) => {
-                          print(
-                              'Data length : ' + qSnap.docs.length.toString()),
-                          qSnap.docs.forEach((doc) {
-                            _jsonLst.add(doc.data());
-                            print(doc.data());
-                          })
-                        })
-                    .whenComplete(() => {print('get all docs complete')});
+                users.get().then((QuerySnapshot qSnap) => {
+                      //print(
+                      //'Data length : ' + qSnap.docs.length.toString()),
+                      qSnap.docs.forEach((doc) {
+                        _jsonLst.add(doc.data());
+                        //print(doc.data());
+                      })
+                    });
+                //.whenComplete(() => {print('get all docs complete')});
 
                 // -- extract each doc doc --
                 // var doc = users.doc('0').get();
