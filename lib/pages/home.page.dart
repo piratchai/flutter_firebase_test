@@ -22,13 +22,32 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    //this.testUpdateUser();
+  }
 
-    //this.testAddFirestore();
+  void testAddUser() {
     User user = User(username: "piratchai kkk", phone: "0948594833");
     UserService userService = new UserService();
     userService
         .addUser(user)
         .then((value) => print('Add user : ' + value.toString()));
+  }
+
+  void testUpdateUser() async {
+    User user = User(username: "พงษ์สุด วงษ์ดี", phone: "0947384788");
+    UserService userService = new UserService();
+
+    String docNo = '5';
+
+    await userService
+        .updateUser(user, docNo)
+        .then((value) => print('Update user success.'))
+        .catchError((onError) => print('Update user failed.'));
+
+    await userService.getUser(docNo).then((value) => print(
+        'Doc : ${value.doc}, Username : ${value.username}, phone :${value.phone}'));
+
+    print('After update user.');
   }
 
   @override

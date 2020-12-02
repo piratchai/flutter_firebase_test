@@ -84,4 +84,18 @@ class UserService {
 
     return isSuccess;
   }
+
+  Future<bool> updateUser(User user, String docNo) async {
+    CollectionReference userCollectoin = firestore.collection(collectionName);
+
+    bool isSuccess = false;
+
+    await userCollectoin
+        .doc(docNo)
+        .update({'username': user.username, 'phone': user.phone})
+        .then((value) => isSuccess = true)
+        .catchError((error) => isSuccess = false);
+
+    return isSuccess;
+  }
 }
