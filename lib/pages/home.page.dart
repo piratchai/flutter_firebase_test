@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:test_firebase/components/buttons/rounded.button.dart';
 import 'package:test_firebase/components/colors/colors.component.dart';
 import 'package:test_firebase/components/screens/customScaffold.component.dart';
+import 'package:test_firebase/models/user.model.dart';
 import 'package:test_firebase/pages/showusers.page.dart';
 import 'package:test_firebase/services/user.service.dart';
 
@@ -23,22 +24,11 @@ class _HomePageState extends State<HomePage> {
     super.initState();
 
     //this.testAddFirestore();
-  }
-
-  void testAddFirestore() async {
-    UserService _user = new UserService();
-
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    CollectionReference userCollectoin = firestore.collection('users');
-
-    var nextNo = "";
-    await _user.getNextDocNo().then((value) => nextNo = value.toString());
-
-    userCollectoin
-        .doc(nextNo)
-        .set({"doc": nextNo, "id": "-", "username": "A", "phone": "0948594844"})
-        .then((value) => print('Add user successful.'))
-        .catchError((error) => print('error'));
+    User user = User(username: "piratchai kkk", phone: "0948594833");
+    UserService userService = new UserService();
+    userService
+        .addUser(user)
+        .then((value) => print('Add user : ' + value.toString()));
   }
 
   @override

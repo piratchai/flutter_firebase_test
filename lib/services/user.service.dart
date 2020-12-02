@@ -62,4 +62,26 @@ class UserService {
     print(nextNo);
     return nextNo;
   }
+
+  Future<bool> addUser(User user) async {
+    CollectionReference userCollectoin = firestore.collection(collectionName);
+
+    var nextNo = "";
+    await this.getNextDocNo().then((value) => nextNo = value.toString());
+
+    bool isSuccess = false;
+
+    await userCollectoin
+        .doc(nextNo)
+        .set({
+          "doc": nextNo,
+          "id": "-",
+          "username": user.username,
+          "phone": user.phone
+        })
+        .then((value) => isSuccess = true)
+        .catchError((error) => isSuccess = false);
+
+    return isSuccess;
+  }
 }
