@@ -18,6 +18,10 @@ class RoundedButton extends StatelessWidget {
   static const double fontMedium = 20;
   static const double fontLarge = 35;
 
+  // -- static button size properties -- //
+  static const double buttonHeight = 45;
+  static const double buttonMinWidth = 150;
+
   // -- static Text Color properties -- //
   static const Color whiteText = Colors.white;
   static const Color blackText = Colors.black;
