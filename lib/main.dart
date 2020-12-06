@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:test_firebase/pages/edituser.page.dart';
 import 'package:test_firebase/pages/home.page.dart';
 import 'package:test_firebase/pages/showuser.page.dart';
 import 'package:test_firebase/pages/showusers.page.dart';
+import 'package:test_firebase/pages/viewuser.page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +27,7 @@ class MyApp extends StatelessWidget {
         HomePage.routeName: (context) => HomePage(),
         ShowUsersPage.routeName: (context) => ShowUsersPage(),
         ShowUserPage.routeName: (context) => ShowUserPage(),
+        ViewUserPage.routeName: (context) => ViewUserPage(),
       },
     );
   }
