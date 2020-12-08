@@ -1,11 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:test_firebase/components/buttons/rounded.button.dart';
 import 'package:test_firebase/components/colors/colors.component.dart';
 import 'package:test_firebase/components/screens/customScaffold.component.dart';
-import 'package:test_firebase/models/user.model.dart';
 import 'package:test_firebase/pages/showusers.page.dart';
-import 'package:test_firebase/services/user.service.dart';
 
 class HomePage extends StatefulWidget {
   static const String routeName = "home";
