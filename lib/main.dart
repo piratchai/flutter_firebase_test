@@ -28,6 +28,7 @@ class MyApp extends StatelessWidget {
         ShowUsersPage.routeName: (context) => ShowUsersPage(),
         ShowUserPage.routeName: (context) => ShowUserPage(),
         ViewUserPage.routeName: (context) => ViewUserPage(),
+        EditUserPage.routeName: (context) => EditUserPage(),
       },
     );
   }

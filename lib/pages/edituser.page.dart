@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:test_firebase/components/colors/colors.component.dart';
+import 'package:test_firebase/components/screens/customAlert.component.dart';
 import 'package:test_firebase/components/screens/customScaffold.component.dart';
 import 'package:test_firebase/models/user.model.dart';
+import 'package:test_firebase/pages/showusers.page.dart';
 import 'package:test_firebase/screenArguments/showuser.argument.dart';
 import 'package:test_firebase/services/user.service.dart';
 
@@ -19,21 +21,15 @@ class _EditUserPageState extends State<EditUserPage> {
   // -- Service -- //
   UserService _userService = new UserService();
 
-  // -- Form key -- //
-  final _userFormKey = GlobalKey<FormState>();
+  // user doc //
+  String userDoc = "";
 
-  // -- Data -- //
-  User user = null;
+  // -- TextController -- //
+  TextEditingController _usernameTxtCtrl;
+  TextEditingController _phoneTxtCtrl;
 
-  // -- Text Editor -- //
-  TextEditingController _userDocTxtCtrl = new TextEditingController();
-  TextEditingController _userIdTxtCtrl = new TextEditingController();
-  TextEditingController _userNameTxtCtrl = new TextEditingController();
-  TextEditingController _userPhoneTxtCtrl = new TextEditingController();
-
-  // -- Edit properties -- //
-  bool _isEdit = false;
-  bool _isInitial = true;
+  // -- formKey -- //
+  final _editForm = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -41,28 +37,14 @@ class _EditUserPageState extends State<EditUserPage> {
     super.initState();
   }
 
-  void setEditScreenMode(bool isEdit) {
-    setState(() {
-      this._isEdit = isEdit;
-    });
-  }
-
-  Future<User> getUser(String doc) async {
-    //User _user;
-    await this._userService.getUser(doc).then((value) {
-      setState(() {
-        user = new User();
-        user = value;
-        this._userDocTxtCtrl.text = user.doc;
-        this._userIdTxtCtrl.text = user.id;
-        this._userNameTxtCtrl.text = user.username;
-        this._userPhoneTxtCtrl.text = user.phone;
-
-        this._isInitial = false;
-      });
-    });
-
-    //return _user;
+  Future<bool> editUser(User user) async {
+    bool success = false;
+    await this
+        ._userService
+        .updateUser(user, user.doc)
+        .then((value) => success = value)
+        .catchError((onError) => success = false);
+    return success;
   }
 
   @override
@@ -70,10 +52,6 @@ class _EditUserPageState extends State<EditUserPage> {
     // -- Arguments -- //
     final ShowUserArguments _arguments =
         ModalRoute.of(context).settings.arguments;
-
-    if (this._isInitial) this.getUser(_arguments.doc);
-
-    // print("change");
 
     return CustomScaffold(
       titleBackgroudColor: CustomColors.titleBackgroundColor,
@@ -84,145 +62,140 @@ class _EditUserPageState extends State<EditUserPage> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // -- Future Builder -- //
-              // FutureBuilder(
-              //   future: this.getUser(_arguments.doc),
-              //   builder: (context, snapshet) {
-              //     if (snapshet.hasData) {
-              //       User userSnap = snapshet.data;
-
-              //       //print(userSnap.username);
-
-              //       return Column(
-              //         children: [Text('Username : ${userSnap.username}')],
-              //       );
-              //     } else if (snapshet.hasError) {
-              //       return Text('Error');
-              //     }
-
-              //     return Center(
-              //       child: CircularProgressIndicator(),
-              //     );
-              //   },
-              // ),
-
-              // -- TextEditor -- //
-              user != null
-                  ? Container(
-                      margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
-                      child: Form(
-                        key: this._userFormKey,
-                        child: Column(
-                          children: [
-                            // -- Doc Text Field -- //
-                            TextFormField(
-                              controller: this._userDocTxtCtrl,
-                              decoration:
-                                  InputDecoration(labelText: 'User Doc'),
-                              //initialValue: user.doc,
-                              enabled: false,
-                            ),
-                            // -- UserId Text Field -- //
-                            TextFormField(
-                              controller: this._userIdTxtCtrl,
-                              decoration: InputDecoration(labelText: 'UserID'),
-                              //initialValue: user.id,
-                              enabled: false,
-                            ),
-                            // -- Username Text Field -- //
-                            TextFormField(
-                              controller: this._userNameTxtCtrl,
-                              decoration: InputDecoration(
-                                  labelText: 'Username',
-                                  hintText: 'พิมพ์ชื่อของคุณ'),
-                              enabled: this._isEdit,
-                              validator: (value) {
-                                if (value.isEmpty) {
-                                  return 'enter, your name';
-                                }
-                                return null;
-                              },
-                              //initialValue: user.username,
-                            ),
-                            // -- Phone Text Field -- //
-                            TextFormField(
-                              controller: this._userPhoneTxtCtrl,
-                              decoration: InputDecoration(
-                                  labelText: 'Phone',
-                                  hintText: 'พิมพ์เบอร์ของคุณ'),
-                              enabled: this._isEdit,
-                              //initialValue: user.phone,
-                            ),
-                            // -- Edit Button -- //
-                            !this._isEdit
-                                ? Container(
-                                    margin: EdgeInsets.fromLTRB(0, 20, 0, 0),
-                                    child: RoundedButton(
-                                      buttonText: 'แก้ไข',
-                                      buttonColor: CustomColors.blueButtonColor,
-                                      fontSize: RoundedButton.fontMedium,
-                                      height: RoundedButton.buttonHeight,
-                                      minWidth: RoundedButton.buttonMinWidth,
-                                      textColor: RoundedButton.whiteText,
-                                      onPressFunc: () {
-                                        // Logic Here //
-                                        //print('First press');
-                                        this.setEditScreenMode(true);
-                                      },
-                                    ),
-                                  )
-                                : Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      // -- Confirm Button -- //
-                                      Container(
-                                        margin:
-                                            EdgeInsets.fromLTRB(0, 20, 30, 0),
-                                        child: RoundedButton(
-                                          buttonText: 'ตกลง',
-                                          buttonColor:
-                                              CustomColors.confirmButtonColor,
-                                          fontSize: RoundedButton.fontMedium,
-                                          height: RoundedButton.buttonHeight,
-                                          minWidth:
-                                              RoundedButton.buttonMinWidth,
-                                          textColor: RoundedButton.whiteText,
-                                          onPressFunc: () {
-                                            // Logic Here //
-                                            //print('First press');
-                                          },
-                                        ),
-                                      ),
-                                      // -- Cancel Button -- //
-                                      Container(
-                                        margin:
-                                            EdgeInsets.fromLTRB(0, 20, 0, 0),
-                                        child: RoundedButton(
-                                          buttonText: 'ยกเลิก',
-                                          buttonColor:
-                                              CustomColors.cancelButtonColor,
-                                          fontSize: RoundedButton.fontMedium,
-                                          height: RoundedButton.buttonHeight,
-                                          minWidth:
-                                              RoundedButton.buttonMinWidth,
-                                          textColor: RoundedButton.whiteText,
-                                          onPressFunc: () {
-                                            // Logic Here //
-                                            //print('First press');
-                                            this.setEditScreenMode(false);
-                                            this.getUser(_arguments.doc);
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                          ],
-                        ),
+              Container(
+                margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                child: Form(
+                  key: this._editForm,
+                  child: Column(
+                    children: [
+                      // -- Doc Text Field -- //
+                      TextFormField(
+                        decoration: InputDecoration(labelText: 'User Doc'),
+                        initialValue: _arguments.doc,
+                        enabled: false,
                       ),
-                    )
-                  : Center(
-                      child: CircularProgressIndicator(),
-                    )
+                      // -- UserId Text Field -- //
+                      TextFormField(
+                        decoration: InputDecoration(labelText: 'UserID'),
+                        initialValue: _arguments.id,
+                        enabled: false,
+                      ),
+                      // -- Username Text Field -- //
+                      TextFormField(
+                        decoration: InputDecoration(
+                            labelText: 'Username', hintText: 'พิมพ์ชื่อของคุณ'),
+                        enabled: true,
+                        autofocus: true,
+                        //initialValue: _arguments.username,
+                        controller: this._usernameTxtCtrl =
+                            new TextEditingController(
+                                text: _arguments.username),
+                        //onChanged: (text) {},
+                        validator: (v) {
+                          if (v.isEmpty) {
+                            return 'กรุณาพิมพ์ชื่อ';
+                          }
+                          return null;
+                        },
+                      ),
+                      // -- Phone Text Field -- //
+                      TextFormField(
+                        decoration: InputDecoration(
+                            labelText: 'Phone', hintText: 'พิมพ์เบอร์ของคุณ'),
+                        enabled: true,
+                        //initialValue: _arguments.phone,
+                        controller: this._phoneTxtCtrl =
+                            new TextEditingController(text: _arguments.phone),
+                        validator: (v) {
+                          if (v.isEmpty) {
+                            return 'กรุณาพิมพ์เบอร์';
+                          }
+                          return null;
+                        },
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // -- Confirm Button -- //
+                          Container(
+                            margin: EdgeInsets.fromLTRB(0, 20, 30, 0),
+                            child: RoundedButton(
+                              buttonText: 'ตกลง',
+                              buttonColor: CustomColors.blueButtonColor,
+                              fontSize: RoundedButton.fontMedium,
+                              height: RoundedButton.buttonHeight,
+                              minWidth: RoundedButton.buttonMinWidth,
+                              textColor: RoundedButton.whiteText,
+                              onPressFunc: () {
+                                // Logic Here //
+                                //print('back press');
+                                if (this._editForm.currentState.validate()) {
+                                  // -- edit user -- //
+                                  User user = new User(
+                                      doc: _arguments.doc,
+                                      id: _arguments.id,
+                                      username: this._usernameTxtCtrl.text,
+                                      phone: this._phoneTxtCtrl.text);
+
+                                  this.editUser(user).then((value) {
+                                    if (value) {
+                                      showDialog<void>(
+                                        context: context,
+                                        barrierDismissible:
+                                            false, // user must tap button!
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text('แจ้งเตือน'),
+                                            content: SingleChildScrollView(
+                                              child: ListBody(
+                                                children: <Widget>[
+                                                  Text('อัพเดทข้อมูลสำเร็จ'),
+                                                  // Text(
+                                                  //     'Would you like to approve of this message?'),
+                                                ],
+                                              ),
+                                            ),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                child: Text('ยอมรับ'),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    }
+                                  });
+                                } else {
+                                  return;
+                                }
+                              },
+                            ),
+                          ),
+                          // -- Cancel Button -- //
+                          Container(
+                            margin: EdgeInsets.fromLTRB(0, 20, 0, 0),
+                            child: RoundedButton(
+                              buttonText: 'กลับ',
+                              buttonColor: CustomColors.cancelButtonColor,
+                              fontSize: RoundedButton.fontMedium,
+                              height: RoundedButton.buttonHeight,
+                              minWidth: RoundedButton.buttonMinWidth,
+                              textColor: RoundedButton.whiteText,
+                              onPressFunc: () {
+                                // Logic Here //
+                                Navigator.pop(context, true);
+                              },
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
             ],
           )
         ],

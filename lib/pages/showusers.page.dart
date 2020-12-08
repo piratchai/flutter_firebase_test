@@ -84,12 +84,15 @@ class _ShowUsersPageState extends State<ShowUsersPage> {
                                   IconButton(
                                 icon: Icon(Icons.attribution_rounded),
                                 onPressed: () {
-                                  print('View');
+                                  //print('View');
                                   Navigator.pushNamed(
                                     context,
                                     ViewUserPage.routeName,
-                                    arguments:
-                                        ShowUserArguments(doc: _user.doc),
+                                    arguments: ShowUserArguments(
+                                        doc: _user.doc,
+                                        id: _user.id,
+                                        username: _user.username,
+                                        phone: _user.phone),
                                   );
                                 },
                                 tooltip: 'View',
@@ -100,7 +103,16 @@ class _ShowUsersPageState extends State<ShowUsersPage> {
                             IconButton(
                               icon: Icon(Icons.edit),
                               onPressed: () {
-                                print('Edit');
+                                //print('Edit');
+                                Navigator.pushNamed(
+                                  context,
+                                  EditUserPage.routeName,
+                                  arguments: ShowUserArguments(
+                                      doc: _user.doc,
+                                      id: _user.id,
+                                      username: _user.username,
+                                      phone: _user.phone),
+                                );
                               },
                               tooltip: 'Edit',
                             )
