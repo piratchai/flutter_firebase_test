@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:test_firebase/components/buttons/rounded.button.dart';
 import 'package:test_firebase/components/colors/colors.component.dart';
@@ -19,6 +20,19 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+  }
+
+  void testDeleteUser(String doc) async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    String collectionName = "users";
+
+    CollectionReference userCollectoin = firestore.collection(collectionName);
+
+    await userCollectoin
+        .doc(doc)
+        .delete()
+        .then((value) => print('User Doc : ${doc} was deleted'))
+        .catchError((onError) => print('Error occured when deleting'));
   }
 
   @override
@@ -54,24 +68,24 @@ class _HomePageState extends State<HomePage> {
               ),
 
               // -- Add User -- //
-              Container(
-                margin: EdgeInsets.fromLTRB(0, 20, 0, 0),
-                child: Center(
-                  child: RoundedButton(
-                    buttonText: 'Add User',
-                    buttonColor: CustomColors.blueButtonColor,
-                    fontSize: RoundedButton.fontSmall,
-                    height: this.buttonHeight,
-                    minWidth: this.buttonMinWidth,
-                    textColor: RoundedButton.whiteText,
-                    onPressFunc: () {
-                      // Logic Here //
-                      //print('First press');
-                      //Navigator.pushNamed(context, ShowUsersPage.routeName);
-                    },
-                  ),
-                ),
-              ),
+              // Container(
+              //   margin: EdgeInsets.fromLTRB(0, 20, 0, 0),
+              //   child: Center(
+              //     child: RoundedButton(
+              //       buttonText: 'Add User',
+              //       buttonColor: CustomColors.blueButtonColor,
+              //       fontSize: RoundedButton.fontSmall,
+              //       height: this.buttonHeight,
+              //       minWidth: this.buttonMinWidth,
+              //       textColor: RoundedButton.whiteText,
+              //       onPressFunc: () {
+              //         // Logic Here //
+              //         //print('First press');
+              //         //Navigator.pushNamed(context, ShowUsersPage.routeName);
+              //       },
+              //     ),
+              //   ),
+              // ),
             ],
           )
         ],

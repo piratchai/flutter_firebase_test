@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:test_firebase/components/colors/colors.component.dart';
+import 'package:test_firebase/components/screens/customDialog.component.dart';
 import 'package:test_firebase/components/screens/customScaffold.component.dart';
+import 'package:test_firebase/constants/constants.dart';
 import 'package:test_firebase/models/user.model.dart';
+import 'package:test_firebase/pages/adduser.page.dart';
 import 'package:test_firebase/pages/edituser.page.dart';
 import 'package:test_firebase/pages/showuser.page.dart';
 import 'package:test_firebase/pages/viewuser.page.dart';
@@ -35,11 +38,29 @@ class _ShowUsersPageState extends State<ShowUsersPage> {
     // print('Ater get users');
 
     // -- fill data to state variable -- //
+    setState(() {
+      this._users.clear();
+    });
+
     _usersFuture.forEach((e) {
       //print(e.doc);
       setState(() {
         this._users.add(e);
       });
+    });
+  }
+
+  void deleteUser(BuildContext context, String doc) async {
+    await this._userService.removeUser(doc).then((value) {
+      if (value) {
+        //
+        print('Success');
+        this.getAllUsers();
+        CustomDialog.showResultDialog(
+            context, Constants.alertBoxMsg, 'ลบสำเร็จ', 'รับทราบ', false);
+      }
+    }).catchError((onError) {
+      print('Error when remove user');
     });
   }
 
@@ -49,6 +70,32 @@ class _ShowUsersPageState extends State<ShowUsersPage> {
       titleBackgroudColor: CustomColors.titleBackgroundColor,
       bodyBackground: CustomColors.bodyBackgroundColor,
       title: 'Show All User',
+      appbarListWidget: [
+        // -- refresh user button bar -- //
+        Padding(
+          padding: EdgeInsets.only(right: 20.0),
+          child: GestureDetector(
+            onTap: () {
+              // -- action here - //
+              //print('add user');
+              this.getAllUsers();
+            },
+            child: Icon(Icons.refresh),
+          ),
+        ),
+        // -- add user button bar -- //
+        Padding(
+          padding: EdgeInsets.only(right: 20.0),
+          child: GestureDetector(
+            onTap: () {
+              // -- action here - //
+              //print('add user');
+              Navigator.pushNamed(context, AddUserPage.routeName);
+            },
+            child: Icon(Icons.person_add),
+          ),
+        )
+      ],
       body: this._users.length > 0
           ? ListView.builder(
               itemBuilder: (context, index) {
@@ -78,35 +125,14 @@ class _ShowUsersPageState extends State<ShowUsersPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(0, 0, 120, 0),
-                              child: // -- View Icon Button -- //
-                                  IconButton(
-                                icon: Icon(Icons.attribution_rounded),
-                                onPressed: () {
-                                  //print('View');
-                                  Navigator.pushNamed(
-                                    context,
-                                    ViewUserPage.routeName,
-                                    arguments: ShowUserArguments(
-                                        doc: _user.doc,
-                                        id: _user.id,
-                                        username: _user.username,
-                                        phone: _user.phone),
-                                  );
-                                },
-                                tooltip: 'View',
-                              ),
-                            ),
-
-                            // -- Edit Icon Button -- //
+                            // -- View Icon Button -- //
                             IconButton(
-                              icon: Icon(Icons.edit),
+                              icon: Icon(Icons.attribution_rounded),
                               onPressed: () {
-                                //print('Edit');
+                                //print('View');
                                 Navigator.pushNamed(
                                   context,
-                                  EditUserPage.routeName,
+                                  ViewUserPage.routeName,
                                   arguments: ShowUserArguments(
                                       doc: _user.doc,
                                       id: _user.id,
@@ -114,7 +140,50 @@ class _ShowUsersPageState extends State<ShowUsersPage> {
                                       phone: _user.phone),
                                 );
                               },
-                              tooltip: 'Edit',
+                              tooltip: 'View',
+                            ),
+
+                            // -- Edit Icon Button -- //
+                            Container(
+                              margin: EdgeInsets.fromLTRB(100, 0, 100, 0),
+                              child: IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: () {
+                                  //print('Edit');
+                                  Navigator.pushNamed(
+                                    context,
+                                    EditUserPage.routeName,
+                                    arguments: ShowUserArguments(
+                                        doc: _user.doc,
+                                        id: _user.id,
+                                        username: _user.username,
+                                        phone: _user.phone),
+                                  );
+                                },
+                                tooltip: 'Edit',
+                              ),
+                            ),
+
+                            // -- Remove Icon Button -- //
+                            IconButton(
+                              icon: Icon(Icons.remove_circle),
+                              onPressed: () async {
+                                print(_user.doc);
+                                await CustomDialog.showConfirmDialog(
+                                        context,
+                                        Constants.alertBoxMsg,
+                                        'ต้องการลบ ' + _user.username,
+                                        'ยืนยันลบ',
+                                        'ยกเลิก')
+                                    .then((value) {
+                                  if (value) {
+                                    this.deleteUser(context, _user.doc);
+                                  } else {
+                                    // Nothing
+                                  }
+                                });
+                              },
+                              tooltip: 'Remove',
                             )
                           ],
                         )

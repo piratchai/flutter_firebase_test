@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:test_firebase/pages/adduser.page.dart';
 import 'package:test_firebase/pages/edituser.page.dart';
 import 'package:test_firebase/pages/home.page.dart';
 import 'package:test_firebase/pages/showuser.page.dart';
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
         ShowUserPage.routeName: (context) => ShowUserPage(),
         ViewUserPage.routeName: (context) => ViewUserPage(),
         EditUserPage.routeName: (context) => EditUserPage(),
+        AddUserPage.routeName: (context) => AddUserPage(),
       },
     );
   }

@@ -4,30 +4,29 @@ import 'package:test_firebase/components/screens/customDialog.component.dart';
 import 'package:test_firebase/components/screens/customScaffold.component.dart';
 import 'package:test_firebase/constants/constants.dart';
 import 'package:test_firebase/models/user.model.dart';
-import 'package:test_firebase/pages/showusers.page.dart';
 import 'package:test_firebase/screenArguments/showuser.argument.dart';
 import 'package:test_firebase/services/user.service.dart';
 
 import '../components/buttons/rounded.button.dart';
 import '../models/user.model.dart';
 
-class EditUserPage extends StatefulWidget {
-  static const String routeName = "editUser";
+class AddUserPage extends StatefulWidget {
+  static const String routeName = "addUser";
 
   @override
-  _EditUserPageState createState() => _EditUserPageState();
+  _AddUserPageState createState() => _AddUserPageState();
 }
 
-class _EditUserPageState extends State<EditUserPage> {
+class _AddUserPageState extends State<AddUserPage> {
   // -- Service -- //
   UserService _userService = new UserService();
 
-  // user doc //
-  String userDoc = "";
-
   // -- TextController -- //
-  TextEditingController _usernameTxtCtrl;
-  TextEditingController _phoneTxtCtrl;
+  TextEditingController _usernameTxtCtrl = new TextEditingController();
+  TextEditingController _phoneTxtCtrl = new TextEditingController();
+
+  // -- doc -- //
+  String doc = "";
 
   // -- formKey -- //
   final _editForm = GlobalKey<FormState>();
@@ -36,28 +35,37 @@ class _EditUserPageState extends State<EditUserPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    this.getNextDoc();
   }
 
-  Future<bool> editUser(User user) async {
-    bool success = false;
-    await this
-        ._userService
-        .updateUser(user, user.doc)
-        .then((value) => success = value)
-        .catchError((onError) => success = false);
-    return success;
+  void getNextDoc() async {
+    await this._userService.getNextDocNo().then((value) {
+      setState(() {
+        doc = value.toString();
+      });
+    }).catchError((onError) {
+      print('Error when get last doc');
+    });
+  }
+
+  void addUser(User user, BuildContext context) async {
+    await this._userService.addUser(user).then((value) {
+      if (value) {
+        //
+        CustomDialog.showResultDialog(context, Constants.alertBoxMsg,
+            'เพิ่มสำเร็จ จะกลับไปหน้าหลัก', 'รับทราบ', true);
+      }
+    }).catchError((onError) {
+      print('Error when add user');
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // -- Arguments -- //
-    final ShowUserArguments _arguments =
-        ModalRoute.of(context).settings.arguments;
-
     return CustomScaffold(
       titleBackgroudColor: CustomColors.titleBackgroundColor,
       bodyBackground: CustomColors.bodyBackgroundColor,
-      title: 'Show User',
+      title: 'Add User',
       body: ListView(
         children: [
           Column(
@@ -70,15 +78,18 @@ class _EditUserPageState extends State<EditUserPage> {
                   child: Column(
                     children: [
                       // -- Doc Text Field -- //
-                      TextFormField(
-                        decoration: InputDecoration(labelText: 'User Doc'),
-                        initialValue: _arguments.doc,
-                        enabled: false,
-                      ),
+                      this.doc != ""
+                          ? TextFormField(
+                              decoration:
+                                  InputDecoration(labelText: 'User Doc'),
+                              enabled: false,
+                              initialValue: this.doc,
+                            )
+                          : Text(''),
                       // -- UserId Text Field -- //
                       TextFormField(
                         decoration: InputDecoration(labelText: 'UserID'),
-                        initialValue: _arguments.id,
+                        initialValue: '-',
                         enabled: false,
                       ),
                       // -- Username Text Field -- //
@@ -88,9 +99,7 @@ class _EditUserPageState extends State<EditUserPage> {
                         enabled: true,
                         autofocus: true,
                         //initialValue: _arguments.username,
-                        controller: this._usernameTxtCtrl =
-                            new TextEditingController(
-                                text: _arguments.username),
+                        controller: this._usernameTxtCtrl,
                         //onChanged: (text) {},
                         validator: (v) {
                           if (v.isEmpty) {
@@ -105,8 +114,7 @@ class _EditUserPageState extends State<EditUserPage> {
                             labelText: 'Phone', hintText: 'พิมพ์เบอร์ของคุณ'),
                         enabled: true,
                         //initialValue: _arguments.phone,
-                        controller: this._phoneTxtCtrl =
-                            new TextEditingController(text: _arguments.phone),
+                        controller: this._phoneTxtCtrl,
                         keyboardType: TextInputType.number,
                         validator: (v) {
                           if (v.isEmpty) {
@@ -132,23 +140,12 @@ class _EditUserPageState extends State<EditUserPage> {
                                 // Logic Here //
                                 //print('back press');
                                 if (this._editForm.currentState.validate()) {
-                                  // -- edit user -- //
+                                  // -- add user -- //
+                                  String username = this._usernameTxtCtrl.text;
+                                  String phone = this._phoneTxtCtrl.text;
                                   User user = new User(
-                                      doc: _arguments.doc,
-                                      id: _arguments.id,
-                                      username: this._usernameTxtCtrl.text,
-                                      phone: this._phoneTxtCtrl.text);
-
-                                  this.editUser(user).then((value) {
-                                    if (value) {
-                                      CustomDialog.showResultDialog(
-                                          context,
-                                          Constants.alertBoxMsg,
-                                          'แก้ไขสำเร็จ จะกลับไปหน้าหลัก',
-                                          'รับทราบ',
-                                          true);
-                                    }
-                                  });
+                                      id: "", username: username, phone: phone);
+                                  this.addUser(user, context);
                                 } else {
                                   return;
                                 }

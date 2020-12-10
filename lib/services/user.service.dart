@@ -98,4 +98,18 @@ class UserService {
 
     return isSuccess;
   }
+
+  Future<bool> removeUser(String doc) async {
+    CollectionReference userCollectoin = firestore.collection(collectionName);
+
+    bool isSuccess = false;
+
+    await userCollectoin
+        .doc(doc)
+        .delete()
+        .then((value) => isSuccess = true)
+        .catchError((onError) => isSuccess = false);
+
+    return isSuccess;
+  }
 }

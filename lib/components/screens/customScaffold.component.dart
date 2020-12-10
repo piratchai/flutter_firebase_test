@@ -4,6 +4,7 @@ class CustomScaffold extends StatelessWidget {
   // -- AppBar -- //
   final String title;
   final Color titleBackgroudColor;
+  final List<Widget> appbarListWidget;
 
   // -- Body -- //
   final Widget body;
@@ -11,7 +12,11 @@ class CustomScaffold extends StatelessWidget {
 
   // -- construct -- //
   CustomScaffold(
-      {this.title, this.titleBackgroudColor, this.body, this.bodyBackground});
+      {this.title,
+      this.titleBackgroudColor,
+      this.body,
+      this.bodyBackground,
+      this.appbarListWidget});
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +24,7 @@ class CustomScaffold extends StatelessWidget {
       appBar: AppBar(
         title: Text(this.title),
         backgroundColor: this.titleBackgroudColor,
+        actions: this.appbarListWidget,
       ),
       body: this.body,
       backgroundColor: this.bodyBackground,
